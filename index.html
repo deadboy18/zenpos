@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZenPOS — Management System</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f6f8;
+  --bg-card: #ffffff;
+  --bg-sidebar: #fafbfc;
+  --bg-input: #f0f1f4;
+  --bg-hover: #f0f1f4;
+  --border: #e2e4e9;
+  --border-light: #ecedf0;
+  --text-primary: #1a1a2e;
+  --text-secondary: #5f6578;
+  --text-muted: #9a9cae;
+  --text-label: #7c7e8f;
+  --accent: #2563eb;
+  --accent-light: rgba(37,99,235,0.08);
+  --accent-border: rgba(37,99,235,0.2);
+  --accent2: #e11d48;
+  --accent2-light: rgba(225,29,72,0.08);
+  --accent2-border: rgba(225,29,72,0.2);
+  --green: #16a34a;
+  --green-light: rgba(22,163,74,0.08);
+  --orange: #ea580c;
+  --orange-light: rgba(234,88,12,0.08);
+  --red: #dc2626;
+  --red-light: rgba(220,38,38,0.08);
+  --yellow: #ca8a04;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0f1117;
+  --bg-secondary: #161821;
+  --bg-card: #1a1c27;
+  --bg-sidebar: #13141d;
+  --bg-input: #1e2030;
+  --bg-hover: #1e2030;
+  --border: #2a2c3d;
+  --border-light: #222433;
+  --text-primary: #e8e9ed;
+  --text-secondary: #a0a2b3;
+  --text-muted: #6b6d7e;
+  --text-label: #8a8c9e;
+  --accent: #3b82f6;
+  --accent-light: rgba(59,130,246,0.1);
+  --accent-border: rgba(59,130,246,0.25);
+  --accent2: #f43f5e;
+  --accent2-light: rgba(244,63,94,0.1);
+  --accent2-border: rgba(244,63,94,0.25);
+  --green: #22c55e;
+  --green-light: rgba(34,197,94,0.1);
+  --orange: #f97316;
+  --orange-light: rgba(249,115,22,0.1);
+  --red: #ef4444;
+  --red-light: rgba(239,68,68,0.1);
+  --yellow: #eab308;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Plus Jakarta Sans',system-ui,sans-serif; background:var(--bg-primary); color:var(--text-primary); font-size:13px; overflow:hidden; height:100vh; }
+button { font-family:inherit; cursor:pointer; }
+input,select,textarea { font-family:inherit; }
+
+.app { display:flex; height:100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width:230px; background:var(--bg-sidebar); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto;
+}
+.sidebar-brand { padding:16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.sidebar-brand-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.sidebar-brand-text h3 { font-size:14px; font-weight:700; color:var(--text-primary); line-height:1.2; }
+.sidebar-brand-text span { font-size:10px; color:var(--text-muted); }
+
+.sidebar-section { padding:12px 10px; }
+.sidebar-section-title { font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; padding:0 6px; margin-bottom:6px; }
+.sidebar-item {
+  padding:8px 10px; border-radius:var(--radius); display:flex; align-items:center; gap:9px;
+  cursor:pointer; font-size:12px; color:var(--text-secondary); font-weight:500;
+  margin-bottom:1px; transition: background 0.15s, color 0.15s; border:1px solid transparent;
+}
+.sidebar-item:hover { background:var(--bg-hover); color:var(--text-primary); }
+.sidebar-item.active { background:var(--accent-light); color:var(--accent); border-color:var(--accent-border); font-weight:600; }
+.sidebar-item.active-full { background:var(--accent2-light); color:var(--accent2); border-color:var(--accent2-border); font-weight:600; }
+.sidebar-item .icon { width:18px; text-align:center; font-size:14px; }
+
+.branch-item { padding:7px 10px; border-radius:var(--radius); cursor:pointer; margin-bottom:2px; border:1px solid transparent; }
+.branch-item:hover { background:var(--bg-hover); }
+.branch-item.active { background:var(--accent-light); border-color:var(--accent-border); }
+.branch-item.active-full { background:var(--accent2-light); border-color:var(--accent2-border); }
+.branch-name { font-size:12px; font-weight:600; color:var(--text-primary); }
+.branch-meta { font-size:10px; color:var(--text-muted); margin-top:1px; }
+.branch-dot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:6px; }
+.branch-dot.open { background:var(--green); }
+.branch-dot.closed { background:var(--red); }
+
+.sidebar-footer { padding:12px 10px; border-top:1px solid var(--border); margin-top:auto; }
+.mode-badge {
+  font-size:10px; padding:5px 10px; border-radius:20px; font-weight:700; text-align:center;
+  letter-spacing:0.5px;
+}
+
+/* ── Main ── */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.topbar {
+  height:50px; border-bottom:1px solid var(--border); display:flex; align-items:center;
+  justify-content:space-between; padding:0 20px; background:var(--bg-card); flex-shrink:0;
+}
+.topbar-left { display:flex; align-items:center; gap:12px; }
+.topbar-left h2 { font-size:15px; font-weight:700; }
+.topbar-left .badge { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.topbar-btn {
+  padding:6px 12px; border-radius:var(--radius); border:1px solid var(--border);
+  background:var(--bg-card); color:var(--text-secondary); font-size:11px; font-weight:500;
+  display:flex; align-items:center; gap:5px; transition:0.15s;
+}
+.topbar-btn:hover { background:var(--bg-hover); color:var(--text-primary); }
+.topbar-btn.danger { border-color:var(--red); color:var(--red); }
+.topbar-btn.danger:hover { background:var(--red-light); }
+
+.content { flex:1; overflow-y:auto; padding:20px; background:var(--bg-secondary); }
+
+/* ── Cards & Grids ── */
+.card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-sm); }
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm); }
+.stat-label { font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+.stat-value { font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; }
+
+.section-title { font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
+
+/* ── Workers Grid ── */
+.worker-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.worker-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:14px; cursor:pointer; transition:0.15s; position:relative; overflow:hidden;
+}
+.worker-card:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
+.worker-card.selected { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-border); }
+.worker-card.selected-full { border-color:var(--accent2); box-shadow:0 0 0 2px var(--accent2-border); }
+.worker-avatar {
+  width:48px; height:48px; border-radius:50%; object-fit:cover;
+  background:var(--bg-input); display:flex; align-items:center; justify-content:center;
+  font-size:22px; margin:0 auto 8px; overflow:hidden;
+}
+.worker-avatar img { width:100%; height:100%; object-fit:cover; }
+
+/* ── Status Badges ── */
+.status-badge { font-size:10px; padding:3px 8px; border-radius:10px; font-weight:600; display:inline-block; }
+.status-available { background:var(--green-light); color:var(--green); }
+.status-busy { background:var(--orange-light); color:var(--orange); }
+.status-off { background:var(--bg-input); color:var(--text-muted); }
+
+/* ── Room Cards ── */
+.room-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.room-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:16px; position:relative; overflow:hidden; min-height:130px;
+}
+.room-card .progress-bar { position:absolute; bottom:0; left:0; height:3px; transition:width 1s linear; border-radius:0 2px 0 0; }
+
+/* ── Table ── */
+.data-table { width:100%; border-collapse:collapse; }
+.data-table th { padding:10px 14px; font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; text-align:left; border-bottom:1px solid var(--border); background:var(--bg-secondary); }
+.data-table td { padding:10px 14px; font-size:12px; border-bottom:1px solid var(--border-light); }
+
+/* ── Service Card ── */
+.service-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.service-card {
+  padding:12px 14px; border-radius:var(--radius); border:1px solid var(--border);
+  background:var(--bg-card); cursor:pointer; display:flex; justify-content:space-between;
+  align-items:center; transition:0.15s;
+}
+.service-card:hover { background:var(--bg-hover); }
+.service-card.selected { border-color:var(--accent); background:var(--accent-light); }
+.service-card.selected-full { border-color:var(--accent2); background:var(--accent2-light); }
+
+/* ── Payment Buttons ── */
+.pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.pay-btn {
+  padding:10px 8px; border-radius:var(--radius); border:1px solid var(--border);
+  background:var(--bg-card); color:var(--text-secondary); font-size:11px; font-weight:500;
+  text-align:center; display:flex; align-items:center; justify-content:center; gap:5px;
+  transition:0.15s;
+}
+.pay-btn:hover { background:var(--bg-hover); color:var(--text-primary); border-color:var(--accent); }
+.pay-btn:disabled { opacity:0.35; cursor:not-allowed; }
+
+/* ── Form ── */
+.form-group { margin-bottom:14px; }
+.form-label { font-size:11px; font-weight:600; color:var(--text-label); margin-bottom:4px; display:block; }
+.form-input {
+  width:100%; padding:8px 12px; border-radius:var(--radius); border:1px solid var(--border);
+  background:var(--bg-input); color:var(--text-primary); font-size:13px; outline:none;
+  transition:border-color 0.15s;
+}
+.form-input:focus { border-color:var(--accent); }
+.form-select { appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239a9cae' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat:no-repeat; background-position:right 8px center; background-size:14px; padding-right:30px; }
+
+/* ── Button Primary ── */
+.btn-primary {
+  padding:10px 20px; border-radius:var(--radius); border:none; font-weight:700;
+  font-size:13px; color:#fff; transition:0.15s;
+}
+.btn-sm { padding:7px 14px; font-size:11px; }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text-secondary); }
+.btn-outline:hover { background:var(--bg-hover); color:var(--text-primary); }
+
+/* ── Toast ── */
+.toast-container { position:fixed; top:16px; right:16px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+.toast {
+  padding:14px 18px; border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); max-width:380px;
+  animation: slideIn 0.3s ease-out; font-size:12px; border-left:4px solid;
+  background:var(--bg-card); color:var(--text-primary);
+}
+.toast.emergency { border-left-color:var(--red); background:#fef2f2; }
+[data-theme="dark"] .toast.emergency { background:#1c1012; }
+.toast.success { border-left-color:var(--green); }
+.toast .toast-title { font-weight:700; font-size:13px; margin-bottom:2px; }
+.toast .toast-sub { color:var(--text-secondary); }
+
+@keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+/* ── Emergency Modal ── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center;
+  justify-content:center; z-index:9998;
+}
+.modal {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:28px; width:420px; box-shadow:var(--shadow-lg);
+}
+.modal h3 { font-size:16px; font-weight:700; margin-bottom:4px; }
+.modal p { font-size:12px; color:var(--text-secondary); margin-bottom:16px; }
+
+/* ── Config Upload ── */
+.upload-zone {
+  width:80px; height:80px; border-radius:50%; border:2px dashed var(--border);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  background:var(--bg-input); transition:0.15s; overflow:hidden; flex-shrink:0;
+}
+.upload-zone:hover { border-color:var(--accent); }
+.upload-zone img { width:100%; height:100%; object-fit:cover; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── Currency Selector ── */
+.curr-btn {
+  padding:4px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg-card);
+  font-size:11px; font-weight:600; color:var(--text-secondary); cursor:pointer; transition:0.15s;
+}
+.curr-btn.active { background:var(--accent-light); color:var(--accent); border-color:var(--accent-border); }
+.curr-btn.active-full { background:var(--accent2-light); color:var(--accent2); border-color:var(--accent2-border); }
+
+/* Contact icons */
+.contact-icon {
+  width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center;
+  justify-content:center; font-size:14px; cursor:pointer; transition:0.15s; border:1px solid var(--border);
+  background:var(--bg-card); text-decoration:none;
+}
+.contact-icon:hover { transform:scale(1.1); }
+.contact-icon.wa { color:#25d366; border-color:#25d366; }
+.contact-icon.tg { color:#0088cc; border-color:#0088cc; }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════
+
+const LANG = {
+  en: {
+    brandName: 'Zen Wellness Spa', brandNameFull: 'Paradise Lounge',
+    pos: 'POS System v2.4', branches: 'Branches', navigation: 'Navigation',
+    floorView: 'Floor View', workers: 'Therapists', workersFull: 'Workers',
+    rooms: 'Rooms & Timers', collections: 'Collections', transactions: 'Transactions',
+    ghl: 'GHL Terminal', newOrder: 'New Order', config: 'Configuration',
+    currency: 'Currency', standard: 'STANDARD', fullMode: 'FULL MODE',
+    available: 'Available', busy: 'Busy', offDuty: 'Off Duty',
+    todayRevenue: "Today's Revenue", activeRooms: 'Active Rooms',
+    workerStatus: 'Therapist Status', workerStatusFull: 'Worker Status',
+    activeSessions: 'Active Sessions', vacant: 'Vacant',
+    step1: 'Step 1 — Select', step2: 'Step 2 — Select Services',
+    step3: 'Step 3 — Select Room', orderSummary: 'Order Summary',
+    duration: 'Duration', total: 'Total', payWith: 'Pay With',
+    notSelected: 'Not selected', noneSelected: 'None selected',
+    back: '← Back', cash: 'Cash', card: 'Card (GHL)',
+    totalCollection: 'Total Collection', avgTicket: 'Avg Ticket',
+    txCount: 'Transactions', time: 'Time', worker: 'Worker',
+    service: 'Service', room: 'Room', amount: 'Amount',
+    payment: 'Payment', status: 'Status', completed: 'Completed',
+    emergency: '🚨 Emergency Alert', emergencyTitle: 'Emergency Alert',
+    emergencyDesc: 'This will notify ALL branches and management immediately. Select the type of emergency:',
+    emergencyConfirm: 'Are you sure you want to send this alert?',
+    enterCode: 'Enter confirmation code', send: 'SEND ALERT', cancel: 'Cancel',
+    fight: '👊 Fight / Altercation', police: '🚔 Police / Raid',
+    medical: '🏥 Medical Emergency', fire: '🔥 Fire / Hazard',
+    suspicious: '🕵️ Suspicious Activity', other: '⚠️ Other Emergency',
+    alertSent: 'EMERGENCY ALERT', alertFrom: 'Alert from',
+    configTitle: 'Configuration', workerManagement: 'Worker Management',
+    addWorker: '+ Add Worker', editWorker: 'Edit Worker',
+    name: 'Name', age: 'Age', height: 'Height (cm)', weight: 'Weight (kg)',
+    nationality: 'Nationality', phone: 'Phone', photo: 'Photo',
+    save: 'Save', delete: 'Delete', whatsapp: 'WhatsApp', telegram: 'Telegram',
+    lightMode: 'Light', darkMode: 'Dark', language: 'Language',
+    selectBranch: 'Select branch to manage workers',
+    loyalty: 'Loyalty', membership: 'Membership', blacklist: 'Blacklist',
+    healthCheck: 'Health Check', booking: 'Bookings', shift: 'Shifts',
+    min: 'min', left: 'left', since: 'since', started: 'started',
+    occupied: 'Occupied', floor: 'Floor',
+    customerBlacklist: 'Customer Blacklist', healthTracking: 'Health Check Log',
+    shiftManagement: 'Shift Schedule', bookingSystem: 'Advance Bookings',
+    loyaltyProgram: 'Loyalty Program',
+  },
+  bm: {
+    brandName: 'Zen Wellness Spa', brandNameFull: 'Paradise Lounge',
+    pos: 'Sistem POS v2.4', branches: 'Cawangan', navigation: 'Navigasi',
+    floorView: 'Paparan Lantai', workers: 'Terapis', workersFull: 'Pekerja',
+    rooms: 'Bilik & Pemasa', collections: 'Kutipan', transactions: 'Transaksi',
+    ghl: 'Terminal GHL', newOrder: 'Pesanan Baru', config: 'Konfigurasi',
+    currency: 'Mata Wang', standard: 'STANDARD', fullMode: 'MOD PENUH',
+    available: 'Tersedia', busy: 'Sibuk', offDuty: 'Tidak Bertugas',
+    todayRevenue: 'Hasil Hari Ini', activeRooms: 'Bilik Aktif',
+    workerStatus: 'Status Terapis', workerStatusFull: 'Status Pekerja',
+    activeSessions: 'Sesi Aktif', vacant: 'Kosong',
+    step1: 'Langkah 1 — Pilih', step2: 'Langkah 2 — Pilih Perkhidmatan',
+    step3: 'Langkah 3 — Pilih Bilik', orderSummary: 'Ringkasan Pesanan',
+    duration: 'Tempoh', total: 'Jumlah', payWith: 'Bayar Dengan',
+    notSelected: 'Belum dipilih', noneSelected: 'Tiada dipilih',
+    back: '← Kembali', cash: 'Tunai', card: 'Kad (GHL)',
+    totalCollection: 'Jumlah Kutipan', avgTicket: 'Purata Tiket',
+    txCount: 'Transaksi', time: 'Masa', worker: 'Pekerja',
+    service: 'Perkhidmatan', room: 'Bilik', amount: 'Jumlah',
+    payment: 'Pembayaran', status: 'Status', completed: 'Selesai',
+    emergency: '🚨 Kecemasan', emergencyTitle: 'Amaran Kecemasan',
+    emergencyDesc: 'Ini akan memaklumkan SEMUA cawangan dan pengurusan. Pilih jenis kecemasan:',
+    emergencyConfirm: 'Adakah anda pasti mahu hantar amaran ini?',
+    enterCode: 'Masukkan kod pengesahan', send: 'HANTAR AMARAN', cancel: 'Batal',
+    fight: '👊 Pergaduhan', police: '🚔 Polis / Serbuan',
+    medical: '🏥 Kecemasan Perubatan', fire: '🔥 Kebakaran',
+    suspicious: '🕵️ Aktiviti Mencurigakan', other: '⚠️ Kecemasan Lain',
+    alertSent: 'AMARAN KECEMASAN', alertFrom: 'Amaran dari',
+    configTitle: 'Konfigurasi', workerManagement: 'Pengurusan Pekerja',
+    addWorker: '+ Tambah Pekerja', editWorker: 'Ubah Pekerja',
+    name: 'Nama', age: 'Umur', height: 'Tinggi (cm)', weight: 'Berat (kg)',
+    nationality: 'Kewarganegaraan', phone: 'Telefon', photo: 'Foto',
+    save: 'Simpan', delete: 'Padam', whatsapp: 'WhatsApp', telegram: 'Telegram',
+    lightMode: 'Cerah', darkMode: 'Gelap', language: 'Bahasa',
+    selectBranch: 'Pilih cawangan untuk urus pekerja',
+    loyalty: 'Kesetiaan', membership: 'Keahlian', blacklist: 'Senarai Hitam',
+    healthCheck: 'Pemeriksaan', booking: 'Tempahan', shift: 'Syif',
+    min: 'min', left: 'baki', since: 'sejak', started: 'mula',
+    occupied: 'Diduduki', floor: 'Tingkat',
+    customerBlacklist: 'Senarai Hitam Pelanggan', healthTracking: 'Log Pemeriksaan Kesihatan',
+    shiftManagement: 'Jadual Syif', bookingSystem: 'Tempahan Awal',
+    loyaltyProgram: 'Program Kesetiaan',
+  },
+  cn: {
+    brandName: 'Zen 养生馆', brandNameFull: '天堂会所',
+    pos: 'POS系统 v2.4', branches: '分店', navigation: '导航',
+    floorView: '楼层视图', workers: '技师', workersFull: '工作人员',
+    rooms: '房间与计时', collections: '收款', transactions: '交易记录',
+    ghl: 'GHL终端', newOrder: '新订单', config: '设置',
+    currency: '货币', standard: '标准模式', fullMode: '完整模式',
+    available: '空闲', busy: '忙碌', offDuty: '休息',
+    todayRevenue: '今日收入', activeRooms: '使用中房间',
+    workerStatus: '技师状态', workerStatusFull: '人员状态',
+    activeSessions: '进行中', vacant: '空闲',
+    step1: '第一步 — 选择', step2: '第二步 — 选择服务',
+    step3: '第三步 — 选择房间', orderSummary: '订单摘要',
+    duration: '时长', total: '总计', payWith: '支付方式',
+    notSelected: '未选择', noneSelected: '未选择',
+    back: '← 返回', cash: '现金', card: '刷卡 (GHL)',
+    totalCollection: '总收款', avgTicket: '平均消费',
+    txCount: '交易数', time: '时间', worker: '人员',
+    service: '服务', room: '房间', amount: '金额',
+    payment: '支付', status: '状态', completed: '已完成',
+    emergency: '🚨 紧急警报', emergencyTitle: '紧急警报',
+    emergencyDesc: '这将立即通知所有分店和管理层。选择紧急类型：',
+    emergencyConfirm: '确定要发送此警报吗？',
+    enterCode: '输入确认密码', send: '发送警报', cancel: '取消',
+    fight: '👊 打架/冲突', police: '🚔 警察/突检',
+    medical: '🏥 医疗紧急', fire: '🔥 火灾/危险',
+    suspicious: '🕵️ 可疑活动', other: '⚠️ 其他紧急情况',
+    alertSent: '紧急警报', alertFrom: '来自',
+    configTitle: '系统设置', workerManagement: '人员管理',
+    addWorker: '+ 添加人员', editWorker: '编辑人员',
+    name: '姓名', age: '年龄', height: '身高 (cm)', weight: '体重 (kg)',
+    nationality: '国籍', phone: '电话', photo: '照片',
+    save: '保存', delete: '删除', whatsapp: 'WhatsApp', telegram: 'Telegram',
+    lightMode: '浅色', darkMode: '深色', language: '语言',
+    selectBranch: '选择分店管理人员',
+    loyalty: '会员积分', membership: '会员', blacklist: '黑名单',
+    healthCheck: '健康检查', booking: '预约', shift: '排班',
+    min: '分钟', left: '剩余', since: '自', started: '开始',
+    occupied: '使用中', floor: '楼层',
+    customerBlacklist: '客户黑名单', healthTracking: '健康检查记录',
+    shiftManagement: '排班管理', bookingSystem: '预约系统',
+    loyaltyProgram: '会员积分计划',
+  }
+};
+
+const CURRENCIES = { MYR:{s:'RM',r:1,f:'🇲🇾'}, USD:{s:'$',r:0.22,f:'🇺🇸'}, EUR:{s:'€',r:0.20,f:'🇪🇺'} };
+
+const BRANCHES = [
+  { id:1, name:'Bukit Bintang', city:'Kuala Lumpur', status:'open', rooms:['A1','A2','A3','A4','B1','B2','B3'], phone:'+60123456789', tg:'paradisebb' },
+  { id:2, name:'Bangsar', city:'Kuala Lumpur', status:'open', rooms:['101','102','103','104','105'], phone:'+60129876543', tg:'paradisebgsr' },
+  { id:3, name:'JB Sentral', city:'Johor Bahru', status:'open', rooms:['R1','R2','R3','R4','R5','R6'], phone:'+60177654321', tg:'paradisejb' },
+  { id:4, name:'Georgetown', city:'Penang', status:'open', rooms:['G1','G2','G3','G4'], phone:'+60141234567', tg:'paradisepg' },
+  { id:5, name:'Kota Kinabalu', city:'Sabah', status:'closed', rooms:['K1','K2','K3'], phone:'+60168887777', tg:'paradisekk' },
+];
+
+const MASSAGE_SERVICES = [
+  {id:'ms1',name:'Swedish Massage',dur:60,price:120},{id:'ms2',name:'Deep Tissue',dur:60,price:150},
+  {id:'ms3',name:'Thai Massage',dur:90,price:180},{id:'ms4',name:'Hot Stone Therapy',dur:75,price:200},
+  {id:'ms5',name:'Aromatherapy',dur:60,price:130},{id:'ms6',name:'Foot Reflexology',dur:45,price:80},
+];
+
+const FULL_SERVICES = [
+  {id:'f1',name:'Handjob (HJ)',code:'HJ',dur:20,price:80},
+  {id:'f2',name:'Blowjob (BJ)',code:'BJ',dur:30,price:120},
+  {id:'f3',name:'Blowjob + Handjob Combo',code:'BJ+HJ',dur:30,price:150},
+  {id:'f4',name:'Full Service (FS)',code:'FS',dur:45,price:200},
+  {id:'f5',name:'Girlfriend Experience (GFE)',code:'GFE',dur:60,price:350},
+  {id:'f6',name:'Reverse Oral (69)',code:'69',dur:30,price:180},
+  {id:'f7',name:'Body-to-Body Massage',code:'B2B',dur:45,price:160},
+  {id:'f8',name:'Nuru Massage',code:'NURU',dur:60,price:250},
+  {id:'f9',name:'CIM (Finish in Mouth)',code:'CIM',dur:30,price:180},
+  {id:'f10',name:'COB (Finish on Body)',code:'COB',dur:30,price:100},
+  {id:'f11',name:'Duo / Threesome',code:'DUO',dur:60,price:600},
+  {id:'f12',name:'VIP Full Package',code:'VIP',dur:90,price:500},
+  {id:'f13',name:'Overnight Stay',code:'ON',dur:480,price:1500},
+  {id:'f14',name:'Massage + Happy Ending',code:'M+HE',dur:60,price:180},
+  {id:'f15',name:'Couples Special',code:'CPL',dur:90,price:700},
+  {id:'f16',name:'Party Package (3hrs)',code:'PTY',dur:180,price:2000},
+];
+
+const PAYMENT_METHODS = {
+  MYR:[{id:'cash',n:'Cash',i:'💵'},{id:'card',n:'Card (GHL)',i:'💳'},{id:'tng',n:"Touch 'n Go",i:'📱'},{id:'grabpay',n:'GrabPay',i:'🟢'},{id:'boost',n:'Boost',i:'🔴'},{id:'shopeepay',n:'ShopeePay',i:'🟠'},{id:'duitnow',n:'DuitNow QR',i:'🏦'},{id:'maybank',n:'MAE / Maybank',i:'🏧'}],
+  USD:[{id:'cash',n:'Cash',i:'💵'},{id:'card',n:'Card (GHL)',i:'💳'},{id:'applepay',n:'Apple Pay',i:'🍎'},{id:'venmo',n:'Venmo',i:'🔵'}],
+  EUR:[{id:'cash',n:'Cash',i:'💵'},{id:'card',n:'Card (GHL)',i:'💳'},{id:'applepay',n:'Apple Pay',i:'🍎'},{id:'revolut',n:'Revolut',i:'💜'}],
+};
+
+// Workers keyed by branch ID
+const BRANCH_WORKERS = {
+  1: [
+    {id:101,name:'Mei Ling',age:24,h:165,w:50,bust:'C',nat:'Chinese',r:4.8,status:'available',specs:['GFE','FS','BJ'],bio:'Popular choice. Mandarin & English.',phone:'+60123001001',photo:null,massageRole:'Senior Therapist',massageSpecs:['Swedish','Deep Tissue']},
+    {id:102,name:'Saki',age:22,h:158,w:45,bust:'B',nat:'Japanese',r:4.9,status:'available',specs:['GFE','FS','BJ','HJ'],bio:'Top rated. Very attentive.',phone:'+60123001002',photo:null,massageRole:'Therapist',massageSpecs:['Thai','Aromatherapy']},
+    {id:103,name:'Nisa',age:26,h:170,w:55,bust:'D',nat:'Thai',r:4.7,status:'busy',specs:['FS','B2B','NURU','VIP'],bio:'Experienced. Thai, English, Malay.',phone:'+60123001003',photo:null,massageRole:'Senior Therapist',massageSpecs:['Hot Stone','Thai']},
+    {id:104,name:'Yuna',age:23,h:162,w:48,bust:'B',nat:'Korean',r:4.6,status:'available',specs:['GFE','BJ','CIM'],bio:'New arrival. Very popular.',phone:'+60123001004',photo:null,massageRole:'Therapist',massageSpecs:['Swedish','Reflexology']},
+    {id:105,name:'Aiko',age:21,h:155,w:44,bust:'A',nat:'Japanese',r:4.8,status:'available',specs:['GFE','FS','BJ','VIP'],bio:'Petite. Highly requested.',phone:'+60123001005',photo:null,massageRole:'Junior Therapist',massageSpecs:['Swedish','Reflexology']},
+    {id:106,name:'Rosa',age:24,h:160,w:49,bust:'C',nat:'Filipino',r:4.7,status:'off',specs:['GFE','HJ','BJ','B2B'],bio:'Sweet personality.',phone:'+60123001006',photo:null,massageRole:'Therapist',massageSpecs:['Aromatherapy','Swedish']},
+  ],
+  2: [
+    {id:201,name:'Lina',age:27,h:172,w:58,bust:'D',nat:'Vietnamese',r:4.4,status:'available',specs:['FS','DUO','PTY'],bio:'Great for groups.',phone:'+60129001001',photo:null,massageRole:'Senior Therapist',massageSpecs:['Thai','Hot Stone']},
+    {id:202,name:'Priya',age:25,h:168,w:52,bust:'C',nat:'Indian',r:4.5,status:'available',specs:['FS','HJ','B2B','NURU'],bio:'Evening specialist.',phone:'+60129001002',photo:null,massageRole:'Therapist',massageSpecs:['Deep Tissue','Aromatherapy']},
+    {id:203,name:'Cherry',age:22,h:160,w:46,bust:'B',nat:'Thai',r:4.6,status:'busy',specs:['GFE','BJ','FS'],bio:'Cheerful & fun.',phone:'+60129001003',photo:null,massageRole:'Therapist',massageSpecs:['Thai','Swedish']},
+    {id:204,name:'Miki',age:23,h:157,w:44,bust:'B',nat:'Japanese',r:4.8,status:'available',specs:['GFE','NURU','69','CIM'],bio:'Premium service.',phone:'+60129001004',photo:null,massageRole:'Junior Therapist',massageSpecs:['Aromatherapy','Reflexology']},
+  ],
+  3: [
+    {id:301,name:'Anna',age:25,h:166,w:51,bust:'C',nat:'Vietnamese',r:4.5,status:'available',specs:['FS','HJ','BJ','B2B'],bio:'Friendly & relaxed.',phone:'+60177001001',photo:null,massageRole:'Therapist',massageSpecs:['Swedish','Thai']},
+    {id:302,name:'Bella',age:23,h:163,w:48,bust:'B',nat:'Chinese',r:4.7,status:'available',specs:['GFE','FS','CIM','VIP'],bio:'Mandarin speaker.',phone:'+60177001002',photo:null,massageRole:'Senior Therapist',massageSpecs:['Deep Tissue','Hot Stone']},
+    {id:303,name:'Diana',age:26,h:169,w:54,bust:'D',nat:'Indonesian',r:4.3,status:'available',specs:['FS','B2B','DUO'],bio:'Tall and gorgeous.',phone:'+60177001003',photo:null,massageRole:'Therapist',massageSpecs:['Aromatherapy','Swedish']},
+    {id:304,name:'Elsa',age:21,h:155,w:43,bust:'A',nat:'Thai',r:4.6,status:'off',specs:['GFE','BJ','HJ'],bio:'Petite and cute.',phone:'+60177001004',photo:null,massageRole:'Junior Therapist',massageSpecs:['Reflexology','Thai']},
+    {id:305,name:'Faye',age:24,h:161,w:50,bust:'C',nat:'Filipino',r:4.4,status:'busy',specs:['FS','NURU','69'],bio:'Regular favorite.',phone:'+60177001005',photo:null,massageRole:'Therapist',massageSpecs:['Swedish','Aromatherapy']},
+  ],
+  4: [
+    {id:401,name:'Grace',age:22,h:159,w:47,bust:'B',nat:'Chinese',r:4.7,status:'available',specs:['GFE','FS','BJ','VIP'],bio:'Penang local favorite.',phone:'+60141001001',photo:null,massageRole:'Therapist',massageSpecs:['Swedish','Thai']},
+    {id:402,name:'Hana',age:24,h:164,w:50,bust:'C',nat:'Japanese',r:4.9,status:'available',specs:['GFE','NURU','CIM','69'],bio:'Premium only.',phone:'+60141001002',photo:null,massageRole:'Senior Therapist',massageSpecs:['Hot Stone','Deep Tissue']},
+    {id:403,name:'Ivy',age:23,h:156,w:45,bust:'B',nat:'Thai',r:4.5,status:'available',specs:['FS','HJ','BJ','B2B'],bio:'Always smiling.',phone:'+60141001003',photo:null,massageRole:'Therapist',massageSpecs:['Thai','Reflexology']},
+  ],
+  5: [
+    {id:501,name:'Jade',age:25,h:167,w:53,bust:'C',nat:'Chinese',r:4.4,status:'off',specs:['FS','B2B'],bio:'KK branch.',phone:'+60168001001',photo:null,massageRole:'Therapist',massageSpecs:['Swedish','Aromatherapy']},
+    {id:502,name:'Kim',age:22,h:160,w:46,bust:'B',nat:'Korean',r:4.6,status:'off',specs:['GFE','BJ'],bio:'Branch temporarily closed.',phone:'+60168001002',photo:null,massageRole:'Junior Therapist',massageSpecs:['Reflexology','Swedish']},
+  ],
+};
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let state = {
+  theme: 'light',
+  lang: 'en',
+  unlocked: false,
+  currency: 'MYR',
+  branch: BRANCHES[0],
+  page: 'floor',
+  timers: [],
+  collections: { cash:1850, card:3600, ewallet:2200 },
+  transactions: [
+    {id:1,time:'09:15',worker:'Mei Ling',service:'Swedish Massage',room:'A1',amount:120,method:'cash',status:'completed'},
+    {id:2,time:'10:00',worker:'Saki',service:'Deep Tissue',room:'B2',amount:150,method:'card',status:'completed'},
+    {id:3,time:'10:30',worker:'Yuna',service:'Thai Massage',room:'A3',amount:180,method:'tng',status:'completed'},
+    {id:4,time:'11:00',worker:'Aiko',service:'Aromatherapy',room:'B1',amount:130,method:'grabpay',status:'completed'},
+  ],
+  selectedWorker: null,
+  selectedRoom: null,
+  selectedServices: [],
+  ghlStatus: 'idle',
+  modal: null, // 'emergency' | 'emergency-confirm' | null
+  emergencyType: null,
+  emergencyCode: '',
+  toasts: [],
+  configBranch: 1,
+  editingWorker: null,
+  workerPhotos: {}, // workerId -> dataURL
+};
+
+let keyBuffer = '';
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+const t = (key) => LANG[state.lang][key] || LANG.en[key] || key;
+const fc = (amount) => { const c=CURRENCIES[state.currency]; return `${c.s} ${(amount*c.r).toFixed(2)}`; };
+const ft = (secs) => { const m=Math.floor(secs/60),s=secs%60; return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; };
+const getWorkers = () => BRANCH_WORKERS[state.branch.id] || [];
+const getRooms = () => (state.branch.rooms||[]).map((r,i) => ({id:r, name:r, type: i===0?'VIP Suite':i<3?'Deluxe':'Standard', floor:Math.floor(i/3)+1}));
+const getServices = () => state.unlocked ? FULL_SERVICES : MASSAGE_SERVICES;
+const accentClass = () => state.unlocked ? '-full' : '';
+
+function addToast(title, sub, type='success') {
+  const id = Date.now();
+  state.toasts.push({id, title, sub, type});
+  render();
+  setTimeout(() => { state.toasts = state.toasts.filter(t=>t.id!==id); render(); }, 6000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  TIMER LOGIC
+// ═══════════════════════════════════════════════════════
+setInterval(() => {
+  let changed = false;
+  state.timers.forEach(timer => {
+    if (timer.remaining > 0) {
+      timer.remaining--;
+      changed = true;
+      if (timer.remaining === 0) {
+        // Update worker status back to available using stored branchId
+        const workers = BRANCH_WORKERS[timer.branchId || state.branch.id];
+        if (workers) {
+          const w = workers.find(wk => wk.id === timer.workerId);
+          if (w) w.status = 'available';
+        }
+        addToast('⏱️ Session Ended', `${timer.roomName} — ${timer.workerName} is now available`, 'success');
+      }
+    }
+  });
+  if (changed) render();
+}, 1000);
+
+// Secret code
+document.addEventListener('keydown', e => {
+  keyBuffer += e.key;
+  if (keyBuffer.length > 10) keyBuffer = keyBuffer.slice(-10);
+  if (keyBuffer.includes('6969')) {
+    state.unlocked = !state.unlocked;
+    keyBuffer = '';
+    render();
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════
+function render() {
+  document.documentElement.setAttribute('data-theme', state.theme);
+  const app = document.getElementById('app');
+  const L = state.lang;
+  const ul = state.unlocked;
+  const workers = getWorkers();
+  const rooms = getRooms();
+  const services = getServices();
+  const ac = accentClass();
+
+  app.innerHTML = `
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon" style="background:${ul?'linear-gradient(135deg,#e11d48,#be185d)':'linear-gradient(135deg,#0d9488,#0891b2)'}; color:#fff;">
+          ${ul?'🔥':'💆'}
+        </div>
+        <div class="sidebar-brand-text">
+          <h3>${ul?t('brandNameFull'):t('brandName')}</h3>
+          <span>${t('pos')}</span>
+        </div>
+      </div>
+
+      <!-- Branches -->
+      <div class="sidebar-section" style="border-bottom:1px solid var(--border);">
+        <div class="sidebar-section-title">${t('branches')}</div>
+        ${BRANCHES.map(b => `
+          <div class="branch-item ${state.branch.id===b.id?'active'+ac:''}" onclick="setBranch(${b.id})">
+            <div class="branch-name"><span class="branch-dot ${b.status}"></span>${b.name}</div>
+            <div class="branch-meta">${b.city} · ${b.rooms.length} ${t('rooms').split(' ')[0].toLowerCase()}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Nav -->
+      <div class="sidebar-section" style="flex:1;">
+        <div class="sidebar-section-title">${t('navigation')}</div>
+        ${[
+          {k:'floor',i:'🏠',l:t('floorView')},
+          {k:'workers',i:'👤',l:ul?t('workersFull'):t('workers')},
+          {k:'rooms',i:'🚪',l:t('rooms')},
+          {k:'collections',i:'💰',l:t('collections')},
+          {k:'transactions',i:'📋',l:t('transactions')},
+          {k:'ghl',i:'💳',l:t('ghl')},
+          {k:'booking',i:'📅',l:t('booking')},
+          {k:'config',i:'⚙️',l:t('config')},
+        ].map(n => `
+          <div class="sidebar-item ${state.page===n.k?'active'+ac:''}" onclick="setPage('${n.k}')">
+            <span class="icon">${n.i}</span> ${n.l}
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Currency -->
+      <div class="sidebar-section" style="border-top:1px solid var(--border);">
+        <div class="sidebar-section-title">${t('currency')}</div>
+        <div style="display:flex;gap:4px;">
+          ${Object.entries(CURRENCIES).map(([k,v]) => `
+            <button class="curr-btn ${state.currency===k?'active'+ac:''}" onclick="setCurr('${k}')">${v.f} ${k}</button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Theme / Lang -->
+      <div class="sidebar-section" style="border-top:1px solid var(--border);">
+        <div style="display:flex;gap:4px;margin-bottom:6px;">
+          <button class="curr-btn ${state.theme==='light'?'active'+ac:''}" onclick="setTheme('light')" style="flex:1;">☀️ ${t('lightMode')}</button>
+          <button class="curr-btn ${state.theme==='dark'?'active'+ac:''}" onclick="setTheme('dark')" style="flex:1;">🌙 ${t('darkMode')}</button>
+        </div>
+        <div style="display:flex;gap:4px;">
+          <button class="curr-btn ${L==='en'?'active'+ac:''}" onclick="setLang('en')" style="flex:1;">EN</button>
+          <button class="curr-btn ${L==='bm'?'active'+ac:''}" onclick="setLang('bm')" style="flex:1;">BM</button>
+          <button class="curr-btn ${L==='cn'?'active'+ac:''}" onclick="setLang('cn')" style="flex:1;">中文</button>
+        </div>
+      </div>
+
+      <!-- Mode Badge -->
+      <div class="sidebar-footer" style="text-align:center;">
+        <div class="mode-badge" style="background:${ul?'var(--accent2-light)':'var(--accent-light)'}; color:${ul?'var(--accent2)':'var(--accent)'}; border:1px solid ${ul?'var(--accent2-border)':'var(--accent-border)'};">
+          ${ul?'🔓 '+t('fullMode'):'🔒 '+t('standard')}
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <h2>${state.branch.name}</h2>
+          <span class="badge" style="background:${state.branch.status==='open'?'var(--green-light)':'var(--red-light)'}; color:${state.branch.status==='open'?'var(--green)':'var(--red)'};">
+            ${state.branch.status.toUpperCase()}
+          </span>
+          <span style="font-size:11px;color:var(--text-muted);">${state.branch.city}</span>
+        </div>
+        <div class="topbar-right">
+          <!-- Emergency Button -->
+          <button class="topbar-btn danger" onclick="openEmergency()">
+            ${t('emergency')}
+          </button>
+          <!-- Contact -->
+          <a class="contact-icon wa" href="https://wa.me/${state.branch.phone?.replace('+','')}" target="_blank" title="WhatsApp">📱</a>
+          <a class="contact-icon tg" href="https://t.me/${state.branch.tg}" target="_blank" title="Telegram">✈️</a>
+          <!-- Active timers indicator -->
+          ${state.timers.filter(t=>t.remaining>0).length > 0 ? `
+            <span style="font-size:11px;color:var(--orange);font-weight:600;cursor:pointer;" onclick="setPage('rooms')">
+              ⏱️ ${state.timers.filter(t=>t.remaining>0).length} active
+            </span>
+          ` : ''}
+          <span style="font-size:12px;color:var(--text-muted);">${new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</span>
+          <span style="font-size:14px;font-weight:700;">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
+        </div>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="content">
+        ${renderPage(workers, rooms, services, ul, ac)}
+      </div>
+    </div>
+
+    <!-- TOASTS -->
+    <div class="toast-container">
+      ${state.toasts.map(toast => `
+        <div class="toast ${toast.type}">
+          <div class="toast-title">${toast.title}</div>
+          <div class="toast-sub">${toast.sub}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- MODAL -->
+    ${state.modal ? renderModal() : ''}
+  `;
+}
+
+function renderPage(workers, rooms, services, ul, ac) {
+  switch(state.page) {
+    case 'floor': return renderFloor(workers, rooms, ul, ac);
+    case 'workers': return renderWorkers(workers, ul, ac);
+    case 'rooms': return renderRooms(rooms, ul);
+    case 'collections': return renderCollections(ul);
+    case 'transactions': return renderTransactions();
+    case 'ghl': return renderGHL();
+    case 'new-order': return renderNewOrder(workers, rooms, services, ul, ac);
+    case 'config': return renderConfig(ul);
+    case 'booking': return renderBooking();
+    default: return '';
+  }
+}
+
+// ── FLOOR VIEW ──
+function renderFloor(workers, rooms, ul, ac) {
+  const activeCount = state.timers.filter(t=>t.remaining>0).length;
+  const revenue = state.transactions.reduce((s,t)=>s+t.amount,0);
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div>
+        <h2 style="font-size:18px;font-weight:700;">${t('floorView')}</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">${state.branch.name} — ${state.branch.city}</p>
+      </div>
+      <button class="btn-primary" style="background:${ul?'var(--accent2)':'var(--accent)'};" onclick="startNewOrder()">+ ${t('newOrder')}</button>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">${t('available')}</div>
+        <div class="stat-value" style="color:var(--green);">${workers.filter(w=>w.status==='available').length}<span style="font-size:13px;color:var(--text-muted);font-weight:400;">/${workers.length}</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">${t('busy')}</div>
+        <div class="stat-value" style="color:var(--orange);">${workers.filter(w=>w.status==='busy').length}<span style="font-size:13px;color:var(--text-muted);font-weight:400;">/${workers.length}</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">${t('activeRooms')}</div>
+        <div class="stat-value" style="color:${ul?'var(--accent2)':'var(--accent)'};">${activeCount}<span style="font-size:13px;color:var(--text-muted);font-weight:400;">/${rooms.length}</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">${t('todayRevenue')}</div>
+        <div class="stat-value" style="color:var(--yellow);">${fc(revenue)}</div>
+      </div>
+    </div>
+
+    <div class="section-title">${ul?t('workerStatusFull'):t('workerStatus')}</div>
+    <div class="worker-grid" style="margin-bottom:20px;">
+      ${workers.map(w => `
+        <div class="worker-card" style="opacity:${w.status==='off'?0.5:1};cursor:${w.status==='available'?'pointer':'default'};border-color:${w.status==='available'?'var(--green)':w.status==='busy'?'var(--orange)':'var(--border)'}33;" onclick="${w.status==='available'?`selectWorkerAndOrder(${w.id})`:''}">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div class="worker-avatar">${w.photo||state.workerPhotos[w.id]?`<img src="${state.workerPhotos[w.id]||''}">`:'👤'}</div>
+            <div>
+              <div style="font-weight:700;font-size:13px;">${w.name}</div>
+              <div style="font-size:10px;color:var(--text-muted);">${ul?`${w.nat} · ${w.age}y`:w.massageRole}</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="status-badge status-${w.status==='available'?'available':w.status==='busy'?'busy':'off'}">
+              ${w.status==='available'?'✓ '+t('available'):w.status==='busy'?'⏳ '+t('busy'):t('offDuty')}
+            </span>
+            <div style="display:flex;gap:4px;">
+              <a class="contact-icon wa" href="https://wa.me/${w.phone?.replace('+','')}" target="_blank" title="WhatsApp" style="width:22px;height:22px;font-size:11px;" onclick="event.stopPropagation()">📱</a>
+              <a class="contact-icon tg" href="https://t.me/" target="_blank" title="Telegram" style="width:22px;height:22px;font-size:11px;" onclick="event.stopPropagation()">✈️</a>
+            </div>
+          </div>
+          ${w.status==='busy'&&state.timers.find(tm=>tm.workerName===w.name&&tm.remaining>0)?`<div style="margin-top:6px;font-size:11px;color:var(--orange);font-weight:600;">⏱ ${ft(state.timers.find(tm=>tm.workerName===w.name).remaining)} ${t('left')}</div>`:''}
+        </div>
+      `).join('')}
+    </div>
+
+    ${activeCount > 0 ? `
+      <div class="section-title">${t('activeSessions')}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+        ${state.timers.filter(tm=>tm.remaining>0).map(tm => {
+          const pct = ((tm.duration-tm.remaining)/tm.duration)*100;
+          const urgent = tm.remaining < 300;
+          return `
+            <div class="room-card" style="border-color:${urgent?'var(--red)':'var(--border)'};">
+              <div class="progress-bar" style="width:${pct}%;background:${urgent?'var(--red)':ul?'var(--accent2)':'var(--accent)'};"></div>
+              <div style="font-weight:700;font-size:15px;">${tm.roomName}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin:4px 0;">${tm.workerName} · ${t('started')} ${tm.startedAt}</div>
+              <div style="font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;color:${urgent?'var(--red)':'var(--text-primary)'};">${ft(tm.remaining)}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    ` : ''}
+  `;
+}
+
+// ── WORKERS PAGE ──
+function renderWorkers(workers, ul, ac) {
+  return `
+    <div style="margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:700;">${ul?t('workersFull'):t('workers')}</h2>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">${state.branch.name} — ${workers.length} ${ul?t('workersFull').toLowerCase():t('workers').toLowerCase()}</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(${ul?2:3},1fr);gap:14px;">
+      ${workers.map(w => `
+        <div class="card" style="opacity:${w.status==='off'?0.6:1};">
+          <div style="display:flex;gap:14px;">
+            <div class="worker-avatar" style="width:${ul?80:56}px;height:${ul?100:56}px;border-radius:10px;font-size:${ul?32:22}px;margin:0;flex-shrink:0;">
+              ${state.workerPhotos[w.id]?`<img src="${state.workerPhotos[w.id]}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`:'👤'}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div>
+                  <div style="font-weight:700;font-size:15px;">${w.name}</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${ul?`${w.nat} · ${t('age')} ${w.age}`:w.massageRole}</div>
+                </div>
+                <span class="status-badge status-${w.status==='available'?'available':w.status==='busy'?'busy':'off'}">${w.status==='available'?t('available'):w.status==='busy'?t('busy'):t('offDuty')}</span>
+              </div>
+              ${ul?`
+                <div style="display:flex;gap:14px;font-size:11px;color:var(--text-secondary);margin-top:8px;margin-bottom:6px;">
+                  <span>📏 ${w.h}cm</span><span>⚖️ ${w.w}kg</span><span>👙 ${w.bust}</span><span>⭐ ${w.r}</span>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-style:italic;">${w.bio}</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                  ${w.specs.map(sp=>`<span style="font-size:9px;padding:2px 7px;border-radius:6px;font-weight:600;background:var(--accent2-light);color:var(--accent2);border:1px solid var(--accent2-border);">${sp}</span>`).join('')}
+                </div>
+              `:`
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;">
+                  ${w.massageSpecs.map(sp=>`<span style="font-size:10px;padding:2px 7px;border-radius:6px;background:var(--accent-light);color:var(--accent);">${sp}</span>`).join('')}
+                </div>
+              `}
+              <div style="display:flex;gap:6px;margin-top:8px;">
+                <a class="contact-icon wa" href="https://wa.me/${w.phone?.replace('+','')}" target="_blank" style="width:24px;height:24px;font-size:12px;">📱</a>
+                <a class="contact-icon tg" href="https://t.me/" target="_blank" style="width:24px;height:24px;font-size:12px;">✈️</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ── ROOMS ──
+function renderRooms(rooms, ul) {
+  return `
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">${t('rooms')}</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">${state.branch.name}</p>
+    <div class="room-grid">
+      ${rooms.map(room => {
+        const timer = state.timers.find(tm=>tm.roomId===room.id&&tm.remaining>0);
+        const pct = timer?((timer.duration-timer.remaining)/timer.duration)*100:0;
+        const urgent = timer&&timer.remaining<300;
+        return `
+          <div class="room-card" style="border-color:${timer?(urgent?'var(--red)':'var(--orange)'):'var(--border)'};">
+            ${timer?`<div class="progress-bar" style="width:${pct}%;background:${urgent?'var(--red)':ul?'var(--accent2)':'var(--accent)'};"></div>`:''}
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+              <div>
+                <div style="font-weight:700;font-size:16px;">${room.name}</div>
+                <div style="font-size:10px;color:var(--text-muted);">${room.type} · ${t('floor')} ${room.floor}</div>
+              </div>
+              <div style="width:10px;height:10px;border-radius:50%;background:${timer?(urgent?'var(--red)':'var(--orange)'):'var(--green)'};"></div>
+            </div>
+            ${timer?`
+              <div style="font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;color:${urgent?'var(--red)':'var(--text-primary)'};">${ft(timer.remaining)}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${timer.workerName} · ${t('since')} ${timer.startedAt}</div>
+            `:`<div style="font-size:13px;color:var(--text-muted);margin-top:16px;">${t('vacant')}</div>`}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+// ── COLLECTIONS ──
+function renderCollections(ul) {
+  const total = state.collections.cash+state.collections.card+state.collections.ewallet;
+  return `
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">${t('collections')}</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">${state.branch.name} — ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+      ${[
+        {l:t('cash'),a:state.collections.cash,i:'💵',c:'var(--green)'},
+        {l:t('card')+' (GHL)',a:state.collections.card,i:'💳',c:'var(--accent)'},
+        {l:'E-Wallet / QR',a:state.collections.ewallet,i:'📱',c:'var(--orange)'},
+      ].map(c=>`
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">${c.i}</div>
+          <div class="stat-label">${c.l}</div>
+          <div style="font-size:26px;font-weight:800;color:${c.c};font-variant-numeric:tabular-nums;">${fc(c.a)}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="card">
+      <div class="stat-label">${t('totalCollection')}</div>
+      <div style="font-size:36px;font-weight:800;color:${ul?'var(--accent2)':'var(--accent)'};margin-bottom:12px;">${fc(total)}</div>
+      <div style="display:flex;gap:20px;font-size:11px;color:var(--text-muted);margin-bottom:16px;">
+        <span>${t('txCount')}: <strong style="color:var(--text-primary);">${state.transactions.length}</strong></span>
+        <span>${t('avgTicket')}: <strong style="color:var(--text-primary);">${fc(Math.round(total/Math.max(state.transactions.length,1)))}</strong></span>
+      </div>
+      <div style="display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--bg-input);">
+        <div style="width:${total?((state.collections.cash/total)*100):0}%;background:var(--green);"></div>
+        <div style="width:${total?((state.collections.card/total)*100):0}%;background:var(--accent);"></div>
+        <div style="width:${total?((state.collections.ewallet/total)*100):0}%;background:var(--orange);"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;">
+        ${[{l:t('cash'),c:'var(--green)',v:state.collections.cash},{l:t('card'),c:'var(--accent)',v:state.collections.card},{l:'E-Wallet',c:'var(--orange)',v:state.collections.ewallet}].map(c=>`
+          <span style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;">
+            <span style="width:8px;height:8px;border-radius:2px;background:${c.c};display:inline-block;"></span>
+            ${c.l}: ${total?Math.round((c.v/total)*100):0}%
+          </span>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ── TRANSACTIONS ──
+function renderTransactions() {
+  return `
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">${t('transactions')}</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">${state.branch.name}</p>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="data-table">
+        <thead><tr>
+          ${['#',t('time'),t('worker'),t('service'),t('room'),t('amount'),t('payment'),t('status')].map(h=>`<th>${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${state.transactions.map(tx=>`
+            <tr>
+              <td style="color:var(--text-muted);">${tx.id}</td>
+              <td style="font-variant-numeric:tabular-nums;">${tx.time}</td>
+              <td style="font-weight:600;">${tx.worker}</td>
+              <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${tx.service}</td>
+              <td>${tx.room}</td>
+              <td style="color:var(--green);font-weight:600;font-variant-numeric:tabular-nums;">${fc(tx.amount)}</td>
+              <td><span class="status-badge" style="background:var(--bg-input);color:var(--text-secondary);">${tx.method}</span></td>
+              <td><span class="status-badge status-available">✓ ${t('completed')}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ── GHL ──
+function renderGHL() {
+  return `
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">${t('ghl')}</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">PAX A920 / L920 — <a href="https://github.com/deadboy18/GHL-POS-Integration" target="_blank" style="color:var(--accent);">github.com/deadboy18/GHL-POS-Integration</a></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div class="card">
+        <div class="section-title">Terminal Status</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <span style="font-size:36px;">💳</span>
+          <div><div style="font-weight:700;font-size:15px;">PAX A920</div><div style="font-size:11px;color:var(--text-muted);">GHL Malaysia · UOB Acquiring</div></div>
+        </div>
+        ${[['Connection','RS232 Serial'],['COM Port','COM3 (Prolific PL2303)'],['Baud Rate','9600 / 8N1'],['Firmware','v1.0.17'],['Last Settlement','Today 06:00 AM'],['Batch #','000247']].map(([k,v])=>`
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-light);font-size:12px;">
+            <span style="color:var(--text-muted);">${k}</span><span style="font-weight:500;">${v} <span style="color:var(--green);">●</span></span>
+          </div>
+        `).join('')}
+        <div style="margin-top:14px;display:flex;gap:8px;">
+          <button class="btn-primary btn-sm" style="background:${state.ghlStatus==='connected'?'var(--green)':'var(--accent)'};" onclick="connectGHL()">
+            ${state.ghlStatus==='connecting'?'Connecting...':state.ghlStatus==='connected'?'✓ Connected':'Connect Terminal'}
+          </button>
+          <button class="btn-sm btn-outline">Settlement</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">Supported Payment Types</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          ${[['💳','Visa','04'],['💳','Mastercard','05'],['💳','AMEX','07'],['🏦','MyDebit','08'],['💳','JCB','09'],['💳','UnionPay','10'],['📱','E-Wallet QR','11'],['📶','Contactless','—']].map(([i,n,c])=>`
+            <div style="padding:8px 10px;border-radius:var(--radius);background:var(--bg-input);border:1px solid var(--border-light);display:flex;align-items:center;gap:7px;font-size:12px;">
+              ${i} <span style="font-weight:500;">${n}</span><span style="margin-left:auto;font-size:10px;color:var(--text-muted);">${c}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="section-title" style="margin-top:14px;">ECR Protocol</div>
+        <div style="font-family:monospace;font-size:11px;background:var(--bg-input);border-radius:var(--radius);padding:12px;border:1px solid var(--border-light);">
+          <div style="color:var(--green);">TX → Sale: 020 [amount_12] [invoice_6] [cashier_4]</div>
+          <div style="color:var(--accent);">RX ← 021 [err_2] [card_22] [auth_8] [amounts]</div>
+          <div style="color:var(--orange);margin-top:4px;">Response 00 = Approved ✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Test Transaction</div>
+      <div style="display:flex;gap:12px;align-items:flex-end;">
+        <div class="form-group" style="margin:0;"><label class="form-label">${t('amount')} (${CURRENCIES[state.currency].s})</label><input class="form-input" value="100.00" style="width:120px;font-weight:600;"></div>
+        <div class="form-group" style="margin:0;"><label class="form-label">Invoice #</label><input class="form-input" value="000001" style="width:100px;font-family:monospace;"></div>
+        <button class="btn-primary" style="background:${state.ghlStatus==='processing'?'var(--orange)':state.ghlStatus==='approved'?'var(--green)':'var(--accent)'};" onclick="testGHL()">
+          ${state.ghlStatus==='processing'?'⏳ Processing...':state.ghlStatus==='approved'?'✓ Approved (00)':'Send Sale'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ── NEW ORDER ──
+function renderNewOrder(workers, rooms, services, ul, ac) {
+  const total = state.selectedServices.reduce((s,sv)=>s+sv.price,0);
+  const dur = state.selectedServices.reduce((s,sv)=>s+sv.dur,0);
+  const payMethods = PAYMENT_METHODS[state.currency]||PAYMENT_METHODS.MYR;
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div>
+        <h2 style="font-size:18px;font-weight:700;">${t('newOrder')}</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">${state.branch.name}</p>
+      </div>
+      <button class="btn-sm btn-outline" onclick="setPage('floor')">${t('back')}</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:20px;">
+      <div>
+        <!-- Workers -->
+        <div class="section-title">${state.selectedWorker?'✅':'⬜'} ${t('step1')} ${ul?t('workersFull'):t('workers')}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;">
+          ${workers.filter(w=>w.status==='available').map(w=>`
+            <div class="worker-card ${state.selectedWorker?.id===w.id?'selected'+ac:''}" onclick="pickWorker(${w.id})" style="text-align:center;padding:12px;">
+              <div class="worker-avatar" style="margin:0 auto 6px;">${state.workerPhotos[w.id]?`<img src="${state.workerPhotos[w.id]}">`:'👤'}</div>
+              <div style="font-weight:600;font-size:12px;">${w.name}</div>
+              ${ul?`<div style="font-size:10px;color:var(--text-muted);">${w.nat} · ${w.age}y</div>`:''}
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Services -->
+        <div class="section-title">${state.selectedServices.length>0?'✅':'⬜'} ${t('step2')}</div>
+        <div class="service-grid" style="margin-bottom:20px;">
+          ${services.map(s=>{
+            const sel = state.selectedServices.find(ss=>ss.id===s.id);
+            return `
+              <div class="service-card ${sel?'selected'+ac:''}" onclick="toggleService('${s.id}')">
+                <div>
+                  <div style="font-weight:600;font-size:13px;">${s.name}</div>
+                  <div style="font-size:10px;color:var(--text-muted);">${s.dur} ${t('min')} ${ul&&s.code?'· '+s.code:''}</div>
+                </div>
+                <div style="font-weight:700;color:${ul?'var(--accent2)':'var(--accent)'};">${fc(s.price)}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- Rooms -->
+        <div class="section-title">${state.selectedRoom?'✅':'⬜'} ${t('step3')}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          ${rooms.map(r=>{
+            const occ = state.timers.find(tm=>tm.roomId===r.id&&tm.remaining>0);
+            return `
+              <div class="worker-card ${state.selectedRoom?.id===r.id?'selected'+ac:''}" onclick="${occ?'':`pickRoom('${r.id}')`}" style="text-align:center;opacity:${occ?0.4:1};cursor:${occ?'not-allowed':'pointer'};">
+                <div style="font-weight:700;font-size:14px;">${r.name}</div>
+                <div style="font-size:10px;color:var(--text-muted);">${r.type}</div>
+                ${occ?`<div style="font-size:10px;color:var(--red);margin-top:4px;">${t('occupied')}</div>`:''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Summary Sidebar -->
+      <div class="card" style="height:fit-content;position:sticky;top:20px;">
+        <div style="font-weight:700;font-size:14px;margin-bottom:16px;">${t('orderSummary')}</div>
+        <div style="margin-bottom:14px;">
+          <div class="form-label">${ul?t('workersFull'):t('workers')}</div>
+          ${state.selectedWorker?`
+            <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-input);border-radius:var(--radius);">
+              <div class="worker-avatar" style="width:28px;height:28px;font-size:14px;margin:0;">${state.workerPhotos[state.selectedWorker.id]?`<img src="${state.workerPhotos[state.selectedWorker.id]}">`:'👤'}</div>
+              <div><div style="font-weight:600;font-size:12px;">${state.selectedWorker.name}</div></div>
+            </div>
+          `:`<div style="font-size:12px;color:var(--text-muted);font-style:italic;">${t('notSelected')}</div>`}
+        </div>
+        <div style="margin-bottom:14px;">
+          <div class="form-label">${t('room')}</div>
+          ${state.selectedRoom?`<div style="padding:8px;background:var(--bg-input);border-radius:var(--radius);font-size:12px;font-weight:600;">${state.selectedRoom.name} — ${state.selectedRoom.type}</div>`
+          :`<div style="font-size:12px;color:var(--text-muted);font-style:italic;">${t('notSelected')}</div>`}
+        </div>
+        <div style="margin-bottom:14px;">
+          <div class="form-label">${t('service')}</div>
+          ${state.selectedServices.length===0?`<div style="font-size:12px;color:var(--text-muted);font-style:italic;">${t('noneSelected')}</div>`:
+          state.selectedServices.map(s=>`
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);font-size:12px;">
+              <span>${s.name}</span><span style="font-weight:600;color:${ul?'var(--accent2)':'var(--accent)'};">${fc(s.price)}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div style="border-top:2px solid var(--border);padding-top:12px;margin-top:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:4px;">
+            <span>${t('duration')}</span><span>${dur} ${t('min')}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;">
+            <span>${t('total')}</span><span style="color:${ul?'var(--accent2)':'var(--accent)'};">${fc(total)}</span>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="form-label">${t('payWith')}</div>
+          ${(()=>{
+            const missing = [];
+            if (!state.selectedWorker) missing.push(ul?t('workersFull'):t('workers'));
+            if (state.selectedServices.length===0) missing.push(t('service'));
+            if (!state.selectedRoom) missing.push(t('room'));
+            const canPay = missing.length===0;
+            return (missing.length>0?'<div style="padding:8px 12px;border-radius:var(--radius);background:var(--red-light);color:var(--red);font-size:11px;font-weight:600;margin-bottom:8px;">⚠️ Select: '+missing.join(', ')+'</div>':'')+
+              '<div class="pay-grid">'+
+              payMethods.map(pm=>'<button class="pay-btn" '+(canPay?'':'disabled')+' onclick="checkout(\''+pm.id+'\')">'+pm.i+' '+pm.n+'</button>').join('')+
+              '</div>';
+          })()}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── BOOKING ──
+function renderBooking() {
+  return `
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">${t('bookingSystem')}</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">Advance reservations & scheduling</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+      ${[
+        {i:'📅',l:t('bookingSystem'),d:'Pre-book slots for regular clients',c:4},
+        {i:'⭐',l:t('loyaltyProgram'),d:'Track visits, earn rewards, VIP tiers',c:12},
+        {i:'🚫',l:t('customerBlacklist'),d:'Flag problematic customers across branches',c:3},
+      ].map(f=>`
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">${f.i}</div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${f.l}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">${f.d}</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent);">${f.c}</div>
+          <div style="font-size:10px;color:var(--text-muted);">Active records</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="card">
+        <div class="section-title">${t('healthTracking')}</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Track worker health check dates & certifications</p>
+        ${(BRANCH_WORKERS[state.branch.id]||[]).slice(0,4).map(w=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:12px;">
+            <span style="font-weight:600;">${w.name}</span>
+            <div>
+              <span class="status-badge status-available">✓ Cleared</span>
+              <span style="font-size:10px;color:var(--text-muted);margin-left:6px;">Exp: ${new Date(Date.now()+30*86400000).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="card">
+        <div class="section-title">${t('shiftManagement')}</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Today's shift schedule</p>
+        ${(BRANCH_WORKERS[state.branch.id]||[]).slice(0,4).map((w,i)=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:12px;">
+            <span style="font-weight:600;">${w.name}</span>
+            <span style="color:var(--text-muted);">${i<2?'10:00 AM – 6:00 PM':'2:00 PM – 10:00 PM'}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ── CONFIG ──
+function renderConfig(ul) {
+  const configWorkers = BRANCH_WORKERS[state.configBranch] || [];
+  return `
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">${t('configTitle')}</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">${t('workerManagement')}</p>
+
+    <div style="margin-bottom:16px;">
+      <div class="form-label">${t('selectBranch')}</div>
+      <div style="display:flex;gap:6px;">
+        ${BRANCHES.map(b=>`
+          <button class="curr-btn ${state.configBranch===b.id?'active'+accentClass():''}" onclick="state.configBranch=${b.id};render();">${b.name}</button>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="section-title" style="margin:0;">${t('workerManagement')} — ${BRANCHES.find(b=>b.id===state.configBranch)?.name}</div>
+      </div>
+      <div style="display:grid;gap:12px;">
+        ${configWorkers.map(w=>`
+          <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-secondary);">
+            <div class="upload-zone" onclick="uploadPhoto(${w.id})" title="Click to upload photo">
+              ${state.workerPhotos[w.id]?`<img src="${state.workerPhotos[w.id]}">`:`<span style="font-size:24px;color:var(--text-muted);">📷</span>`}
+            </div>
+            <input type="file" id="photo-${w.id}" style="display:none;" accept="image/*" onchange="handlePhotoUpload(${w.id}, this)">
+            <div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+              <div class="form-group"><label class="form-label">${t('name')}</label><input class="form-input" value="${w.name}" onchange="updateWorker(${w.id},'name',this.value)"></div>
+              <div class="form-group"><label class="form-label">${t('age')}</label><input class="form-input" type="number" value="${w.age}" onchange="updateWorker(${w.id},'age',this.value)"></div>
+              <div class="form-group"><label class="form-label">${t('height')}</label><input class="form-input" type="number" value="${w.h}" onchange="updateWorker(${w.id},'h',this.value)"></div>
+              <div class="form-group"><label class="form-label">${t('weight')}</label><input class="form-input" type="number" value="${w.w}" onchange="updateWorker(${w.id},'w',this.value)"></div>
+              <div class="form-group"><label class="form-label">${t('nationality')}</label><input class="form-input" value="${w.nat}" onchange="updateWorker(${w.id},'nat',this.value)"></div>
+              <div class="form-group"><label class="form-label">${t('phone')}</label><input class="form-input" value="${w.phone||''}" onchange="updateWorker(${w.id},'phone',this.value)"></div>
+              <div class="form-group"><label class="form-label">${t('status')}</label>
+                <select class="form-input form-select" onchange="updateWorker(${w.id},'status',this.value)">
+                  <option value="available" ${w.status==='available'?'selected':''}>${t('available')}</option>
+                  <option value="busy" ${w.status==='busy'?'selected':''}>${t('busy')}</option>
+                  <option value="off" ${w.status==='off'?'selected':''}>${t('offDuty')}</option>
+                </select>
+              </div>
+              <div class="form-group" style="display:flex;align-items:flex-end;">
+                <div style="display:flex;gap:6px;">
+                  <a class="contact-icon wa" href="https://wa.me/${(w.phone||'').replace('+','')}" target="_blank">📱</a>
+                  <a class="contact-icon tg" href="https://t.me/" target="_blank">✈️</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ── EMERGENCY MODAL ──
+function renderModal() {
+  if (state.modal === 'emergency') {
+    const types = [
+      {k:'fight',l:t('fight')},{k:'police',l:t('police')},{k:'medical',l:t('medical')},
+      {k:'fire',l:t('fire')},{k:'suspicious',l:t('suspicious')},{k:'other',l:t('other')},
+    ];
+    return `
+      <div class="modal-overlay" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+          <h3 style="color:var(--red);">${t('emergencyTitle')}</h3>
+          <p>${t('emergencyDesc')}</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+            ${types.map(tp=>`
+              <button class="pay-btn" style="padding:12px;font-size:12px;font-weight:600;${state.emergencyType===tp.k?'border-color:var(--red);background:var(--red-light);color:var(--red);':''}" onclick="state.emergencyType='${tp.k}';render();">
+                ${tp.l}
+              </button>
+            `).join('')}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Remarks (optional)</label>
+            <textarea class="form-input" id="emergency-remarks" rows="2" placeholder="Additional details..."></textarea>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn-sm btn-outline" onclick="closeModal()">${t('cancel')}</button>
+            <button class="btn-primary btn-sm" style="background:var(--red);" onclick="confirmEmergency()" ${!state.emergencyType?'disabled':''}>${t('send')}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (state.modal === 'emergency-confirm') {
+    return `
+      <div class="modal-overlay">
+        <div class="modal" onclick="event.stopPropagation()">
+          <h3 style="color:var(--red);">⚠️ ${t('emergencyConfirm')}</h3>
+          <p>Type <strong>CONFIRM</strong> or enter your PIN to proceed.</p>
+          <div class="form-group">
+            <input class="form-input" id="confirm-code" placeholder="${t('enterCode')}" style="font-size:16px;text-align:center;font-weight:700;letter-spacing:4px;" oninput="checkEmergencyCode(this.value)">
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn-sm btn-outline" onclick="closeModal()">${t('cancel')}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  return '';
+}
+
+// ═══════════════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════════════
+function setBranch(id) { state.branch = BRANCHES.find(b=>b.id===id); state.selectedWorker=null; state.selectedRoom=null; state.selectedServices=[]; render(); }
+function setPage(p) { state.page=p; render(); }
+function setCurr(c) { state.currency=c; render(); }
+function setTheme(th) { state.theme=th; render(); }
+function setLang(l) { state.lang=l; render(); }
+
+function startNewOrder() { state.selectedWorker=null; state.selectedRoom=null; state.selectedServices=[]; state.page='new-order'; render(); }
+
+function selectWorkerAndOrder(id) {
+  const w = getWorkers().find(wk=>wk.id===id);
+  state.selectedWorker=w; state.selectedRoom=null; state.selectedServices=[]; state.page='new-order'; render();
+}
+
+function pickWorker(id) { state.selectedWorker = getWorkers().find(w=>w.id===id)||null; render(); }
+function pickRoom(id) { state.selectedRoom = getRooms().find(r=>r.id===id)||null; render(); }
+function toggleService(id) {
+  const svcs = getServices();
+  const s = svcs.find(sv=>sv.id===id);
+  if (!s) return;
+  const idx = state.selectedServices.findIndex(sv=>sv.id===id);
+  if (idx>=0) state.selectedServices.splice(idx,1); else state.selectedServices.push(s);
+  render();
+}
+
+function checkout(methodId) {
+  // Require all 3: worker, service(s), room
+  if (!state.selectedWorker || state.selectedServices.length===0 || !state.selectedRoom) {
+    const missing = [];
+    if (!state.selectedWorker) missing.push(state.unlocked ? t('workersFull') : t('workers'));
+    if (state.selectedServices.length===0) missing.push(t('service'));
+    if (!state.selectedRoom) missing.push(t('room'));
+    addToast('⚠️ Missing Selection', 'Please select: ' + missing.join(', '), 'emergency');
+    return;
+  }
+  const total = state.selectedServices.reduce((s,sv)=>s+sv.price,0);
+  const dur = state.selectedServices.reduce((s,sv)=>s+sv.dur,0);
+  const method = (PAYMENT_METHODS[state.currency]||PAYMENT_METHODS.MYR).find(m=>m.id===methodId);
+
+  // Add transaction
+  state.transactions.push({
+    id: state.transactions.length+1,
+    time: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+    worker: state.selectedWorker.name,
+    service: state.selectedServices.map(s=>s.name).join(', '),
+    room: state.selectedRoom.id,
+    amount: total,
+    method: method?.n||methodId,
+    status: 'completed',
+  });
+
+  // Update collections
+  if (methodId==='cash') state.collections.cash+=total;
+  else if (methodId==='card') state.collections.card+=total;
+  else state.collections.ewallet+=total;
+
+  // Set worker to busy
+  const branchWorkers = BRANCH_WORKERS[state.branch.id];
+  if (branchWorkers) {
+    const w = branchWorkers.find(wk=>wk.id===state.selectedWorker.id);
+    if (w) w.status = 'busy';
+  }
+
+  // Start room timer
+  state.timers = state.timers.filter(tm=>tm.roomId!==state.selectedRoom.id);
+  state.timers.push({
+    roomId: state.selectedRoom.id,
+    roomName: state.selectedRoom.name,
+    workerName: state.selectedWorker.name,
+    workerId: state.selectedWorker.id,
+    branchId: state.branch.id,
+    duration: dur*60,
+    remaining: dur*60,
+    startedAt: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+  });
+
+  addToast('✓ Payment Confirmed', `${state.selectedWorker.name} → ${state.selectedRoom.name} · ${fc(total)} via ${method?.n||methodId}`, 'success');
+  state.selectedWorker=null; state.selectedRoom=null; state.selectedServices=[];
+  state.page='floor'; render();
+}
+
+function connectGHL() { state.ghlStatus='connecting'; render(); setTimeout(()=>{state.ghlStatus='connected';render();},1500); }
+function testGHL() { state.ghlStatus='processing'; render(); setTimeout(()=>{state.ghlStatus='approved';render();},2000); setTimeout(()=>{state.ghlStatus='connected';render();},4000); }
+
+function openEmergency() { state.modal='emergency'; state.emergencyType=null; render(); }
+function closeModal() { state.modal=null; state.emergencyType=null; render(); }
+function confirmEmergency() { state.modal='emergency-confirm'; render(); setTimeout(()=>{const el=document.getElementById('confirm-code');if(el)el.focus();},100); }
+
+function checkEmergencyCode(val) {
+  if (val.toUpperCase()==='CONFIRM' || val==='1234') {
+    const remarks = document.getElementById('emergency-remarks')?.value || '';
+    const typeLabels = {fight:t('fight'),police:t('police'),medical:t('medical'),fire:t('fire'),suspicious:t('suspicious'),other:t('other')};
+    const typeLabel = typeLabels[state.emergencyType]||state.emergencyType;
+    closeModal();
+    // Send toast to simulate notification to all branches
+    addToast(
+      `🚨 ${t('alertSent')}`,
+      `${t('alertFrom')} ${state.branch.name}: ${typeLabel}${remarks?' — '+remarks:''}`,
+      'emergency'
+    );
+    // Simulate other branches seeing it
+    setTimeout(()=>{
+      addToast('🚨 Alert Acknowledged', `Bangsar HQ has seen the alert`, 'success');
+    }, 3000);
+  }
+}
+
+function uploadPhoto(workerId) { document.getElementById('photo-'+workerId)?.click(); }
+function handlePhotoUpload(workerId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => { state.workerPhotos[workerId] = e.target.result; render(); };
+  reader.readAsDataURL(file);
+}
+function updateWorker(id, field, value) {
+  for (const branchId in BRANCH_WORKERS) {
+    const w = BRANCH_WORKERS[branchId].find(wk=>wk.id===id);
+    if (w) { w[field] = field==='age'||field==='h'||field==='w' ? Number(value) : value; break; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
