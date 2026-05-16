@@ -237,6 +237,22 @@ input,select,textarea { font-family:inherit; }
 .toast .toast-sub { color:var(--text-secondary); }
 
 @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+@keyframes pinShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+
+/* ── PIN Pad ── */
+.pin-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9998; }
+.pin-box { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px 28px; width:300px; box-shadow:var(--shadow-lg); text-align:center; }
+.pin-dots { display:flex; justify-content:center; gap:12px; margin:20px 0; }
+.pin-dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--border); background:transparent; transition:0.15s; }
+.pin-dot.filled { background:var(--accent); border-color:var(--accent); }
+.pin-numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px; }
+.pin-key {
+  padding:14px 0; border-radius:var(--radius); border:1px solid var(--border); background:var(--bg-card);
+  color:var(--text-primary); font-size:20px; font-weight:700; cursor:pointer; transition:0.1s;
+  -webkit-tap-highlight-color:transparent; user-select:none;
+}
+.pin-key:active { background:var(--accent-light); border-color:var(--accent); transform:scale(0.95); }
+.pin-key.fn { font-size:13px; font-weight:600; color:var(--text-muted); }
 
 /* ── Emergency Modal ── */
 .modal-overlay {
@@ -572,7 +588,7 @@ setInterval(() => {
   if (changed) render();
 }, 1000);
 
-// Secret code
+// Secret code — keyboard
 document.addEventListener('keydown', e => {
   keyBuffer += e.key;
   if (keyBuffer.length > 10) keyBuffer = keyBuffer.slice(-10);
@@ -582,6 +598,41 @@ document.addEventListener('keydown', e => {
     render();
   }
 });
+
+// Secret code — touch: tap brand logo 4x to show PIN pad
+let brandTapCount = 0;
+let brandTapTimer = null;
+document.addEventListener('click', e => {
+  const brand = e.target.closest('.sidebar-brand');
+  if (!brand) return;
+  brandTapCount++;
+  clearTimeout(brandTapTimer);
+  brandTapTimer = setTimeout(() => { brandTapCount = 0; }, 1200);
+  if (brandTapCount >= 4) {
+    brandTapCount = 0;
+    state.modal = 'pin-unlock';
+    state.pinInput = '';
+    render();
+  }
+});
+
+function pinPress(digit) {
+  state.pinInput = (state.pinInput || '') + digit;
+  render();
+  if (state.pinInput === '6969') {
+    state.unlocked = !state.unlocked;
+    state.modal = null;
+    state.pinInput = '';
+    render();
+  } else if (state.pinInput.length >= 4) {
+    // Wrong code — shake & reset
+    const dots = document.getElementById('pin-dots');
+    if (dots) { dots.style.animation = 'none'; dots.offsetHeight; dots.style.animation = 'pinShake 0.4s ease'; }
+    setTimeout(() => { state.pinInput = ''; render(); }, 400);
+  }
+}
+function pinBack() { state.pinInput = (state.pinInput || '').slice(0, -1); render(); }
+function pinCancel() { state.modal = null; state.pinInput = ''; render(); }
 
 // ═══════════════════════════════════════════════════════
 //  RENDER
@@ -1235,6 +1286,25 @@ function renderConfig(ul) {
 
 // ── EMERGENCY MODAL ──
 function renderModal() {
+  if (state.modal === 'pin-unlock') {
+    const len = (state.pinInput || '').length;
+    return `
+      <div class="pin-overlay" onclick="pinCancel()">
+        <div class="pin-box" onclick="event.stopPropagation()">
+          <div style="font-size:13px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Enter PIN</div>
+          <div class="pin-dots" id="pin-dots">
+            ${[0,1,2,3].map(i=>`<div class="pin-dot ${i<len?'filled':''}"></div>`).join('')}
+          </div>
+          <div class="pin-numpad">
+            ${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="pin-key" onclick="pinPress('${n}')">${n}</button>`).join('')}
+            <button class="pin-key fn" onclick="pinCancel()">✕</button>
+            <button class="pin-key" onclick="pinPress('0')">0</button>
+            <button class="pin-key fn" onclick="pinBack()">⌫</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (state.modal === 'emergency') {
     const types = [
       {k:'fight',l:t('fight')},{k:'police',l:t('police')},{k:'medical',l:t('medical')},
